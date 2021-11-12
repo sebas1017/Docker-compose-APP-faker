@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker-compose</title>
+    <link type="text/css" rel="stylesheet" href="../static/css/styles.css" media="screen,projection" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.11.3/datatables.min.css"/>
+
+</head>
+<body>
+    <h2>Bienvenidos</h2>
+    <div>
+        <form id="crear-registros" method="POST">
+            <button type="submit" class="btn btn-primary" >Crear 13 registros</button>
+        </form>
+    </div>
+    <br/>
+    <div>
+        <form id="eliminar-registros" method="POST">
+            <button type="submit" class="btn btn-primary">Eliminar todos los registros</button>
+        </form>
+    </div>
+    <h1>Registros</h1>
+    <table id="data-table_code" class="table table-bordered" style="display: none; width:100%">
+        <thead>
+            <tr class="encabezado_tabla">
+                <th>nombre</th>
+                <th>nombre_compania</th>
+                <th>ciudad</th>
+                <th>direccion</th>
+                <th>telefono</th>
+                <th>color</th>
+            </tr>
+        </thead>
+    </table>
+    <script type="text/javascript" src="../static/js/jquery-3.4.1.js"></script>
+    <script type="text/javascript" src="../static/js/datatables.min.js"></script>
+    
+    <script type="text/javascript">
+        $('#eliminar-registros').submit((event) => {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "/eliminar_registros",
+                beforeSend: function(){
+                    console.log("Enviando request...");
+                },
+                success: function (response) {
+                    pintarTabla(response.data);
+                    console.log("Registros eliminados")
+                },
+                error: function (response) {
+                  console.log(response)
+                  alert("Paila falle")
+                }
+            });
+        });
+
+        $('#crear-registros').submit((event) => {
+            event.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: "/crear_registros",
+                beforeSend: function(){
+                    console.log("Enviando request desde crear...");
+                },
+                success: function (response) {
+                    pintarTabla(response.data);
+                },
+                error: function (response) {
+                  console.log(response)
+                  alert("Paila falle")
+                }
+            });
+        });
+        
+        $(document).ready(function() {
+            $.ajax({
+                type: 'GET',
+                url: "/registros",
+                beforeSend: function(){
+                    console.log("Enviando request...");
+                },
+                success: function (response) {
+                    console.log(response.data)
+                    pintarTabla(response.data);
+                },
+                error: function (response) {
+                  console.log(response)
+                  alert("Paila falle")
+                }
+            });
+        });
+        function pintarTabla(data){
+            $('#data-table_code').DataTable().destroy();
+            $('#data-table_code').show();
+            $('#data-table_code').DataTable({
+                dom: 'B<"clear">rtip',
+                pageLength: 5,
+                buttons: {
+                    name: 'primary',
+                    buttons: [
+                    'copy', 'csv', 'excel','pdf'
+                    ]
+                },
+                "data": data,
+                "columns": [
+                    { "data": "name" },
+                    { "data": "nombre_compania" },
+                    { "data": "ciudad" },
+                    { "data": "direccion" },
+                    { "data": "telefono" },
+                    { "data": "color" },
+                ], select: true,
+                lengthMenu: [
+                    [15, 30, 45, -1],
+                    ["15 Rows", "30 Rows", "45 Rows", "Todo"]
+                ],
+                language: {
+                    searchPlaceholder: "Buscar Datos",
+                    infoEmpty: "La tabla no tiene registros",
+                    zeroRecords:"No existen datos",
+                },
+            });
+    
+        }
+     
+    </script>
+</body>
+</html>
